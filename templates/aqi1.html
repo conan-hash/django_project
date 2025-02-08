@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>AQI-پالایشگاه گاز بید بلند خلیج فارس</title>
+
+  <script nonce="undefined" src="https://cdn.zingchart.com/zingchart.min.js"></script>
+  <style>
+    html,
+    body {
+      height: 100%;
+      width: 100%;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-image: url('https://www.vecteezy.com/free-vector/cloud-background');
+      background-repeat: no-repeat;
+    }
+
+    #myChart {
+      height: 70%;
+      width: 100%;
+      margin-top: 60px; /* Moves the gauge slightly downward */
+    }
+
+    #aqiLabel {
+      margin-top: 5px; /* Moves the AQI label closer to the gauge */
+      font-size: 24px;
+      font-weight: bold;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+  <div id='myChart'></div>
+  <div id="aqiLabel"></div> <!-- AQI Label below the chart -->
+
+  <script>
+    ZC.LICENSE = ["569d52cefae586f634c54f86dc99e6a9", "b55b025e438fa8a98e32482b5f768ff5"];
+    var aqiValue = parseInt("{{ aqi_value|default:0 }}");
+
+    // Function to get AQI category and color
+    function getAqiCategory(value) {
+      if (value <= 50) return { label: "پاک", color: "green" };
+      if (value <= 100) return { label: "قابل قبول", color: "yellow" };
+      if (value <= 150) return { label: "ناسالم (گروه های حساس)", color: "orange" };
+      if (value <= 200) return { label: "ناسالم (تمامی افراد)", color: "red" };
+      return { label: "بسیار ناسالم", color: "purple" };
+    }
+
+    var category = getAqiCategory(aqiValue);
+
+    // Set AQI text below the chart with matching color
+    document.getElementById("aqiLabel").innerHTML = 
+      `AQI Value: <span style="color:${category.color}"> ${aqiValue} - ${category.label}</span>`;
+
+    var myConfig8 = {
+      "type": "gauge",
+      "scale-r": {
+        "aperture": 180,
+        "values": "0:300:25",
+        "max-items": 13,
+        "center": {
+          "size": 5,
+          "background-color": "#66CCFF #FFCCFF",
+          "border-color": "none"
+        },
+        "ring": {
+          "size": 100,
+          "rules": [
+            { "rule": "%v >= 0 && %v <= 50", "background-color": "green" },
+            { "rule": "%v >= 50 && %v <= 100", "background-color": "yellow" },
+            { "rule": "%v >= 100 && %v <= 150", "background-color": "orange" },
+            { "rule": "%v >= 150 && %v <= 200", "background-color": "red" },
+            { "rule": "%v >= 200 && %v <=300", "background-color": "purple" }
+          ]
+        },
+        "labels": ["", "پاک", "", "قابل قبول", "", "ناسالم (گروه های حساس)", "", "ناسالم (تمامی افراد)", "", "", "بسیار ناسالم", "", ""],
+        "item": {
+          "font-color": "gray",
+          "font-family": "Georgia, serif",
+          "font-size": 18,
+          "font-weight": "bold",
+          "font-style": "normal",
+          "offset-r": 0,
+          "angle": "auto"
+        }
+      },
+      "plot": {
+        "csize": "5%",
+        "size": "100%",
+        "background-color": "#000000"
+      },
+      "series": [{
+        "values": [aqiValue]
+      }]
+    };
+
+    zingchart.render({
+      id: 'myChart',
+      data: myConfig8,
+      height: "150%",
+      width: "100%"
+    });
+  </script>
+</body>
+
+</html>
+
